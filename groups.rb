@@ -38,11 +38,11 @@ def retrieve_groups(myapps,user)
   return return_value 
 end  
 
-def complement_groups(myapps)
-  puts "Enter a username to be included in the groups"
-  included = gets.chomp
-  puts "Enter a username to be used as a model"
-  model = gets.chomp
+def complement_groups(myapps,model,included)
+  #puts "Enter a username to be included in the groups"
+  #included = gets.chomp
+  #puts "Enter a username to be used as a model"
+  #model = gets.chomp
   
   mylists = myapps.retrieve_groups(model)
   mylists.each {|list| myapps.add_member_to_group(included, list.group_id)  } 
@@ -83,6 +83,13 @@ content_type :json
 puts "**********#{resp.to_json}************"
 return resp.to_json
 
+end
+
+get '/transfer' do
+  myapps = login(session[:user],session[:password])  
+  dst = params[:destination].to_s
+  src = params[:source].to_s
+  complement_groups(myapps,src,dst)
 end
 
 

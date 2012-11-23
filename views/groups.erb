@@ -6,7 +6,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
   <title>21212.com - Groups</title>
-
+  
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.1/css/bootstrap.min.css" type="text/css" media="all" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.1/css/bootstrap-responsive.min.css" type="text/css" media="all" />
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript" charset="utf-8"></script>
@@ -15,10 +15,9 @@
   <script type="text/javascript">
 
   $(document).ready(function(){
+	  
     $("#users").change(function(){	
       var a = $("#users").val();  
-	  
-	  
       $.ajax({url:"/search?q="+a,success:function(result){
          var groups=$("#groups");
          groups.html("");
@@ -31,6 +30,19 @@
    	     selected.html("Groups that " + a +" belongs to" );
        }});
     });
+	
+	
+    $("#copy").click(function(){
+	  $("#teste").html("ENTROU AQUI")	
+      var src = $("#src-user").val();
+	  var dst = $("#dst-user").val();  
+      $.ajax({url:"/transfer",data:{destination:dst,source:src},success:function(result){
+         
+       }});
+    });
+	
+	
+	
   });
   </script>
 
@@ -72,10 +84,7 @@
       </div>
       <div class="span8">
         <select name="groups" id="groups" multiple="yes" disabled="disabled">
-          <option value="1">Joaquim</option>
-          <option value="2">Maria</option>
-          <option value="3">Joao</option>
-          <option value="4">Jose</option>
+          
         </select>
       </div>
     </div>
@@ -103,22 +112,20 @@
     <div class="row">
       <div class="span3">
         <select name="src-user" id="src-user">
-          <option value="1">Joaquim</option>
-          <option value="2">Maria</option>
-          <option value="3">Joao</option>
-          <option value="4">Jose</option>
+  		  <% @list.each do |user|%>	
+            <option value=<%=user.username%>><%=user.username%></option>
+          <% end %>
         </select>
       </div>
       <div class="span3">
         <select name="dst-user" id="dst-user">
-          <option value="1">Joaquim</option>
-          <option value="2">Maria</option>
-          <option value="3">Joao</option>
-          <option value="4">Jose</option>
+  		  <% @list.each do |user|%>	
+            <option value=<%=user.username%>><%=user.username%></option>
+          <% end %>
         </select>
       </div>
       <div class="span6">
-        <button class="btn btn-info" type="submit">&nbsp;Copy!&nbsp;</button>
+        <button class="btn btn-info" type="submit" id="copy">&nbsp;Copy!&nbsp;</button>
       </div>
     </div>
     <!-- STATUS -->
