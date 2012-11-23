@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+  <title>21212.com - Groups</title>
+
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.1/css/bootstrap.min.css" type="text/css" media="all" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.1/css/bootstrap-responsive.min.css" type="text/css" media="all" />
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.1/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript">
+
+  $(document).ready(function(){
+    $("#users").change(function(){	
+      var a = $("#users").val();  
+	  
+	  
+      $.ajax({url:"/search?q="+a,success:function(result){
+         var groups=$("#groups");
+         groups.html("");
+		 var i;
+		 for(i=0;i<result.length;i++)
+		 {
+			 groups.append('<option value="'+i+'">'+result[i]+'</option>');
+		 }
+   	     var selected =  $("#selected");
+   	     selected.html("Groups that " + a +" belongs to" );
+       }});
+    });
+  });
+  </script>
+
+</head>
+
+<body>
+  <div class="container">
+    <!-- MAIN HEADER -->
+    <header class="row">
+      <div class="span12">
+        <h1>21212's users groups</h1>
+        <hr />
+      </div>
+    </header>
+
+    <!-- FIRST GROUP -->
+    <div class="row">
+      <div class="span12">
+        <h3>Which groups this user belongs to?</h3>
+		<h3 id="teste">Teste</h3>
+      </div>
+    </div>
+    <div class="row">
+      <div class="span4">
+        <h4>Pick a user</h4>
+      </div>
+      <div class="span8">
+        <h4 id="selected"></h4>
+      </div>
+    </div>
+    <!-- SELECTION BOXES -->
+    <div class="row">
+      <div class="span4">
+        <select name="users" id="users">
+		  <% @list.each do |user|%>	
+          <option value=<%=user.username%>><%=user.username%></option>
+          <% end %>
+        </select>
+      </div>
+      <div class="span8">
+        <select name="groups" id="groups" multiple="yes" disabled="disabled">
+          <option value="1">Joaquim</option>
+          <option value="2">Maria</option>
+          <option value="3">Joao</option>
+          <option value="4">Jose</option>
+        </select>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- SECOND GROUP -->
+    <div class="row">
+      <div class="span12">
+        <h3>Copy this users groups to this other one</h3>
+      </div>
+    </div>
+    <div class="row">
+      <div class="span3">
+        <h4>Pick source user</h4>
+      </div>
+      <div class="span3">
+        <h4>Pick destination user</h4>
+      </div>
+      <div class="span6">
+        <h4>Groups that #{} belongs to</h4>
+      </div>
+    </div>
+    <!-- SELECTION BOXES -->
+    <div class="row">
+      <div class="span3">
+        <select name="src-user" id="src-user">
+          <option value="1">Joaquim</option>
+          <option value="2">Maria</option>
+          <option value="3">Joao</option>
+          <option value="4">Jose</option>
+        </select>
+      </div>
+      <div class="span3">
+        <select name="dst-user" id="dst-user">
+          <option value="1">Joaquim</option>
+          <option value="2">Maria</option>
+          <option value="3">Joao</option>
+          <option value="4">Jose</option>
+        </select>
+      </div>
+      <div class="span6">
+        <button class="btn btn-info" type="submit">&nbsp;Copy!&nbsp;</button>
+      </div>
+    </div>
+    <!-- STATUS -->
+    <div class="row">
+      <div class="span12">
+        <p class="text-info">Resultado</p>
+      </div>
+    </div>
+
+  </div>
+  
+</body>
+
+</html>
+
