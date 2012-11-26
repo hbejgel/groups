@@ -39,13 +39,13 @@ def retrieve_groups(myapps,user)
 end  
 
 def complement_groups(myapps,model,included)
-  #puts "Enter a username to be included in the groups"
-  #included = gets.chomp
-  #puts "Enter a username to be used as a model"
-  #model = gets.chomp
-  
-  mylists = myapps.retrieve_groups(model)
-  mylists.each {|list| myapps.add_member_to_group(included, list.group_id)  } 
+  begin
+    mylists = myapps.retrieve_groups(model)
+    mylists.each {|list| myapps.add_member_to_group(included, list.group_id)  } 
+  rescue GDataError => e
+    return "Error: " + e.reason  
+  end
+  return "Success"  
 end
 
 get '/login' do
@@ -89,7 +89,9 @@ get '/transfer' do
   myapps = login(session[:user],session[:password])  
   dst = params[:destination].to_s
   src = params[:source].to_s
-  complement_groups(myapps,src,dst)
+  
+  return complement_groups(myapps,src,dst)
+  
 end
 
 
