@@ -20,10 +20,7 @@ def get_password(prompt="Enter Password")
 end
 
 def login(user,password)
-  #puts "Enter Username"
-  #user = gets.chomp
-  #password = get_password()
-  user = "leonardo.constantino@21212.com"
+  user = "leonardo.constantino@21212.com" #apagar essa e a debaixo
   password = "qheddcyxvthzsrlp"
   app = ProvisioningApi.new(user.to_s,password.to_s)
   return app
@@ -31,10 +28,14 @@ end
 
 #given a user, returns its groups
 def retrieve_groups(myapps,user)
-  #puts "Enter a username to know its groups"
-  mylists = myapps.retrieve_groups(user)
-  return_value = []
-  mylists.each {|list| return_value << list.group_id }
+  begin
+    mylists = myapps.retrieve_groups(user)
+    return_value = []
+    mylists.each {|list| return_value << list.group_id }
+  rescue GDataError => e
+    return ["Error: " + e.reason]
+  end
+      
   return return_value 
 end  
 
@@ -53,13 +54,9 @@ get '/login' do
 end
 
 post '/login' do
-  
-  #list = myapps.retrieve_all_users
-  #erb :groups
   session[:user]= params[:user]
   session[:password]= params[:password]
   redirect '/groups'
-  
 end  
 
 get '/groups' do
@@ -68,20 +65,18 @@ get '/groups' do
   end   
   myapps = login(session[:user],session[:password])
   @list = myapps.retrieve_all_users
-  
   erb :groups
 end
 
 
 get '/search' do
 
-myapps = login(session[:user],session[:password])  
-user = params[:q].to_s
+  myapps = login(session[:user],session[:password])  
+  user = params[:q].to_s
 
-resp=retrieve_groups(myapps,user)  
-content_type :json
-puts "**********#{resp.to_json}************"
-return resp.to_json
+  resp=retrieve_groups(myapps,user)  
+  content_type :json
+  return resp.to_json
 
 end
 
@@ -93,12 +88,3 @@ get '/transfer' do
   return complement_groups(myapps,src,dst)
   
 end
-
-
-
-
-
-#myapps = login()
-
-#retrieve_groups(myapps)
-#complement_groups(myapps)

@@ -82,6 +82,28 @@
        }});
     });
 	
+	$('#text-users').bind('input keyup', function(){
+	    var $this = $(this);
+	    var delay = 2000; // 2 seconds delay after last input
+
+	    clearTimeout($this.data('timer'));
+	    $this.data('timer', setTimeout(function(){
+	        $this.removeData('timer');
+	        var a = $("#text-users").val();
+			$.ajax({url:"/search?q="+a,success:function(result){
+	           var groups=$("#groups");
+	           groups.html("");
+	  		 var i;
+	  		 for(i=0;i<result.length;i++)
+	  		 {
+	  			 groups.append('<option value="'+result[i]+'">'+result[i]+'</option>');
+	  		 }
+	     	     var selected =  $("#selected");
+	     	     selected.html("Groups that " + a +" belongs to" );
+	         }});
+	        // Do your stuff after 2 seconds of last user input
+	    }, delay));
+	});
 	
 	
 	
@@ -89,7 +111,10 @@
 	
 	
     $("#copy").click(function(){
-	  var loading = $("<img id='loading' src='http://www.wallpaperama.com/post-images/forums/200903/07p-6606-loading-circle-.gif'/>").insertAfter(this);
+	  if ($("#loading").length == 0)
+	  {	
+	  	var loading = $("<img id='loading' style='padding-left:30px;' src='http://www.wallpaperama.com/post-images/forums/200903/07p-6606-loading-circle-.gif'/>").insertAfter(this);
+      }
 	  $("#resultado").html("Loading...");	
       var src = $("#src-user").val();
 	  var dst = $("#dst-user").val();  
@@ -140,6 +165,7 @@
           <option value=<%=user.username%>><%=user.username%></option>
           <% end %>
         </select>
+		<input id="text-users" type="text"></input>
       </div>
       <div class="span8">
         <select name="groups" id="groups" multiple="yes" disabled="disabled">
