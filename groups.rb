@@ -1,19 +1,14 @@
-#!/usr/bin/ruby
-$LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'rubygems'
-require 'highline/import'
 require 'sinatra'
-require 'shotgun'
 require 'gappsprovisioning/provisioningapi'
+require 'highline/import'
+require 'shotgun'
 require 'json'
+
 include GAppsProvisioning
+
 enable :sessions
 set :sessions, true
-
-
-
-
-
 
 def get_password(prompt="Enter Password")
    ask(prompt) {|q| q.echo = false}
