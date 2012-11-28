@@ -6,7 +6,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
   <title>21212.com - Groups</title>
-  
+
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.1/css/bootstrap.min.css" type="text/css" media="all" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.1/css/bootstrap-responsive.min.css" type="text/css" media="all" />
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript" charset="utf-8"></script>
@@ -14,119 +14,114 @@
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
   <script type="text/javascript">
 
-  $(document).ready(function(){
-	  
-    $("#users").change(function(){	
-      var a = $("#users").val();  
-      $.ajax({url:"/search?q="+a,success:function(result){
-         var groups=$("#groups");
-         groups.html("");
-		 var i;
-		 for(i=0;i<result.length;i++)
-		 {
-			 groups.append('<option value="'+result[i]+'">'+result[i]+'</option>');
-		 }
-   	     var selected =  $("#selected");
-   	     selected.html("Groups that " + a +" belongs to" );
-       }});
-    });
-	
-    $("#src-user").change(function(){	
-      var a = $("#src-user").val();  
-      $.ajax({url:"/search?q="+a,success:function(result){
-         var groups=$("#src-select");
-         groups.html("");
-		 var i;
-		 for(i=0;i<result.length;i++)
-		 {
-			 groups.append('<option value="'+result[i]+'">'+result[i]+'</option>');
-		 }
-		 var result = $("#result-select");
-		result.html("");
-		result.append($("#src-select").html());
-		result.append($("#dst-select").html());
-		
-		var foundedinputs = [];
-		    $("select[name=result] option").each(function() {
-		      if($.inArray(this.value, foundedinputs) != -1) $(this).remove();
-		      foundedinputs.push(this.value);
-		    });
-		
-       }});
-    });
-	
-    $("#dst-user").change(function(){	
-      var a = $("#dst-user").val();  
-      $.ajax({url:"/search?q="+a,success:function(result){
-         var groups=$("#dst-select");
-         groups.html("");
-		 var i;
-		 for(i=0;i<result.length;i++)
-		 {
-			 groups.append('<option value="'+result[i]+'">'+result[i]+'</option>');
-		 }
-		 var result = $("#result-select");
-		result.html("");
-		result.append($("#src-select").html());
-		result.append($("#dst-select").html());
-		
-		var a = $("#dst-user").val(); 
-		$("#result-text").html("How "+a+" groups will look like:")
-		
-		var foundedinputs = [];
-		    $("select[name=result] option").each(function() {
-		      if($.inArray(this.value, foundedinputs) != -1) $(this).remove();
-		      foundedinputs.push(this.value);
-		    });
-		 
-       }});
-    });
-	
-	$('#text-users').bind('input keyup', function(){
-	    var $this = $(this);
-	    var delay = 2000; // 2 seconds delay after last input
+  $(function(){
 
-	    clearTimeout($this.data('timer'));
-	    $this.data('timer', setTimeout(function(){
-	        $this.removeData('timer');
-	        var a = $("#text-users").val();
-			$.ajax({url:"/search?q="+a,success:function(result){
-	           var groups=$("#groups");
-	           groups.html("");
-	  		 var i;
-	  		 for(i=0;i<result.length;i++)
-	  		 {
-	  			 groups.append('<option value="'+result[i]+'">'+result[i]+'</option>');
-	  		 }
-	     	     var selected =  $("#selected");
-	     	     selected.html("Groups that " + a +" belongs to" );
-	         }});
-	        // Do your stuff after 2 seconds of last user input
-	    }, delay));
-	});
-	
-	
-	
-	
-	
-	
-    $("#copy").click(function(){
-	  if ($("#loading").length == 0)
-	  {	
-	  	var loading = $("<img id='loading' style='padding-left:30px;' src='http://www.wallpaperama.com/post-images/forums/200903/07p-6606-loading-circle-.gif'/>").insertAfter(this);
-      }
-	  $("#resultado").html("Loading...");	
-      var src = $("#src-user").val();
-	  var dst = $("#dst-user").val();  
-      $.ajax({url:"/transfer",data:{destination:dst,source:src},success:function(result){
-         
-		  $("#resultado").html(result);
-		  loading.remove();
-       }});
+    var union = function(array1, array2) {
+      var hash = {}, union = [];
+      $.each($.merge($.merge([], array1), array2), function (index, value) { hash[value] = value; });
+      $.each(hash, function (key, value) { union.push(key); } );
+      return union;
+    };
+
+    $("#users").change(function(){
+      var a = $("#users").val();
+      var $selected = $("#selected");
+      $selected.html("Loading groups that {a} belongs to...".replace(/{a}/,a));
+      $.ajax({
+        url:     "/search?q="+encodeURIComponent(a),
+        success: function(result){
+          var $groups = $("#groups");
+          $groups.html("").attr('size', result.length);
+          $.each(result, function(i, text) {
+            $groups.append( $('<option></option>').val(text).html(text) );
+          });
+          $selected.html("Groups that {a} belongs to".replace(/{a}/,a) );
+        }});
     });
-	
-	
-	
+
+    var updateResultSelect = function() {
+      var $result = $("#result-select");
+      $result.html("").
+        append($("#src-select").html()).
+        append($("#dst-select").html());
+
+      var found = [];
+      $("#result-select option").each(function() {
+        if ($.inArray(this.value, found) != -1) {
+          $(this).remove();
+        }
+        found.push(this.value);
+      }).parent().attr('size', found.length);
+    };
+
+    $("#src-user").change(function(){
+      var a = $("#src-user").val();
+      $.ajax({
+        url:     "/search?q="+encodeURIComponent(a),
+        success: function(result){
+          var $groups = $("#src-select");
+          $groups.html("").attr('size', result.length);
+          $.each(result, function(i, text) {
+            $groups.append( $('<option></option>').val(text).html(text) );
+          });
+
+          updateResultSelect();
+        }});
+    });
+
+    $("#dst-user").change(function(){	
+      var a = $("#dst-user").val();
+      $.ajax({
+        url:     "/search?q="+encodeURIComponent(a),
+        success: function(result){
+          var $groups=$("#dst-select");
+          $groups.html("");
+          $groups.attr('size', result.length);
+          $.each(result, function(i, text) {
+            $groups.append( $('<option></option>').val(text).html(text) );
+          });
+
+          $("#result-text").html("How {a} groups will look like:".replace(/{a}/,a));
+
+          updateResultSelect();
+        }});
+    });
+
+    $('#text-users').bind('input keyup', function(){
+      var $this = $(this);
+      var delay = 2000; // 2 seconds delay after last input
+
+      clearTimeout($this.data('timer'));
+      $this.data('timer', setTimeout(function(){
+        $this.removeData('timer');
+        var a = $("#text-users").val();
+        $.ajax({url:"/search?q="+a,success:function(result){
+          var $groups=$("#groups");
+          $groups.html("");
+          $groups.attr('size', result.length);
+          $.each(result, function(i, text) {
+            $groups.append( $('<option></option>').val(text).html(text) );
+          });
+          var $selected =  $("#selected");
+          $selected.html("Groups that " + a +" belongs to" );
+        }});
+        // Do your stuff after 2 seconds of last user input
+      }, delay));
+    });
+
+    $("#copy").click(function(){
+      if ($("#loading").length == 0) {	
+        var loading = $("<img id='loading' style='padding-left:30px;' src='http://www.wallpaperama.com/post-images/forums/200903/07p-6606-loading-circle-.gif'/>").insertAfter(this);
+      }
+      $("#resultado").html("Loading...");	
+      var src = $("#src-user").val();
+      var dst = $("#dst-user").val();  
+      $.ajax({url:"/transfer",data:{destination:dst,source:src},success:function(result){
+        $("#resultado").html(result);
+        loading.remove();
+      }});
+    });
+
   });
   </script>
 
