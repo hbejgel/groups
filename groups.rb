@@ -44,6 +44,25 @@ def complement_groups(myapps,model,included)
   return "Success"  
 end
 
+def edit_groups(myapps,user,groups)
+  begin
+    old_groups = retrieve_groups(myapps,user)
+    old_groups.each do |group|
+      myapps.remove_member_from_group(user, group)
+    end
+    if groups.nil?
+      return "#{user} removed from all groups. "
+    end
+  
+    groups.each do |group|
+      myapps.add_member_to_group(user, group)
+    end
+  rescue GDataError => e
+    return "Error: " + e.reason  
+  end
+  return "Success"    
+end
+
 get '/login' do
   erb :login
 end
@@ -60,6 +79,10 @@ get '/groups' do
   end   
   myapps = login(session[:user],session[:password])
   @list = myapps.retrieve_all_users
+  @grupos = []
+  myapps.retrieve_all_groups.each do |group|
+    @grupos.push(group.group_id)
+  end  
   erb :groups
 end
 
@@ -81,5 +104,15 @@ get '/transfer' do
   src = params[:source].to_s
   
   return complement_groups(myapps,src,dst)
+  
+end
+
+get '/edit' do
+  myapps = login(session[:user],session[:password])  
+  user = params[:user].to_s
+  groups = params[:groups]
+  
+  
+  return edit_groups(myapps,user,groups)
   
 end

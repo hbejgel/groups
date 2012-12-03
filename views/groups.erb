@@ -14,7 +14,7 @@
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
   <script type="text/javascript">
 
-  $(function(){
+  $(document).ready(function(){
 
     var union = function(array1, array2) {
       var hash = {}, union = [];
@@ -55,7 +55,8 @@
     };
 
     $("#src-user").change(function(){
-      var a = $("#src-user").val();
+	  $("#src-text").val("");	
+      var a = $("#src-user").val();;
       $.ajax({
         url:     "/search?q="+encodeURIComponent(a),
         success: function(result){
@@ -69,7 +70,8 @@
         }});
     });
 
-    $("#dst-user").change(function(){	
+    $("#dst-user").change(function(){
+  	  $("#dst-text").val("");			
       var a = $("#dst-user").val();
       $.ajax({
         url:     "/search?q="+encodeURIComponent(a),
@@ -86,6 +88,105 @@
           updateResultSelect();
         }});
     });
+	
+	
+    $("#edit-user").change(function(){
+      $("#edit-text").val("");			
+	  var a = $("#edit-user").val();
+	  $(".inputs-list").hide(); 	
+      $.ajax({
+        url:     "/search?q="+encodeURIComponent(a),
+        success: function(result){
+			var $check;
+			{$("#edit-result").html("User: "+a);}
+			$("input[name=chk_group[]]").attr('checked', false);
+            $.each(result, function(i, text) {
+			$check = $("input[name=chk_group[]][value="+text+"]");   
+            $check.attr('checked', true);
+          });
+		  $(".inputs-list").show();
+        }});
+	  
+    });
+	
+	$("#edit-text").bind('input keyup', function(){
+      $("#edit-user").val(0);
+	  var $this = $(this);
+      var delay = 2000; // 2 seconds delay after last input
+	  $(".inputs-list").hide();
+      clearTimeout($this.data('timer'));
+      $this.data('timer', setTimeout(function(){
+        $this.removeData('timer');
+        var a = $("#edit-text").val();
+        $.ajax({url:"/search?q="+a,success:function(result){
+			var $check;
+			var error = (result.length > 0 && result[0].substring(0,5)=="Error");
+			if(error==true)
+			{$("#edit-result").html(result[0]);}
+			else
+			{$("#edit-result").html("User: "+a);}
+			$("input[name=chk_group[]]").attr('checked', false);
+            $.each(result, function(i, text) {
+			$check = $("input[name=chk_group[]][value="+text+"]");   
+            $check.attr('checked', true);
+          });
+		  $(".inputs-list").show();
+        }});
+        // Do your stuff after 2 seconds of last user input
+      }, delay));
+    });
+	
+	$("#src-text").bind('input keyup', function(){
+      $("#src-user").val(0);
+	  var $this = $(this);
+      var delay = 2000; // 2 seconds delay after last input
+
+      clearTimeout($this.data('timer'));
+      $this.data('timer', setTimeout(function(){
+        $this.removeData('timer');
+        var a = $("#src-text").val();
+        $.ajax({url:"/search?q="+a,success:function(result){
+            var $groups=$("#src-select");
+            $groups.html("");
+            $groups.attr('size', result.length);
+            $.each(result, function(i, text) {
+              $groups.append( $('<option></option>').val(text).html(text) );
+          
+          });
+          updateResultSelect();
+          
+        }});
+        // Do your stuff after 2 seconds of last user input
+      }, delay));
+    });
+	
+	$("#dst-text").bind('input keyup', function(){
+      $("#dst-user").val(0);
+	  var $this = $(this);
+      var delay = 2000; // 2 seconds delay after last input
+
+      clearTimeout($this.data('timer'));
+      $this.data('timer', setTimeout(function(){
+        $this.removeData('timer');
+        var a = $("#dst-text").val();
+        $.ajax({url:"/search?q="+a,success:function(result){
+            var $groups=$("#dst-select");
+            $groups.html("");
+            $groups.attr('size', result.length);
+            $.each(result, function(i, text) {
+              $groups.append( $('<option></option>').val(text).html(text) );
+          
+          });
+          $("#result-text").html("How {a} groups will look like:".replace(/{a}/,a));
+
+          updateResultSelect();
+          
+        }});
+        // Do your stuff after 2 seconds of last user input
+      }, delay));
+    });
+	
+	
 
     $('#text-users').bind('input keyup', function(){
       var $this = $(this);
@@ -113,14 +214,50 @@
       if ($("#loading").length == 0) {	
         var loading = $("<img id='loading' style='padding-left:30px;' src='http://www.wallpaperama.com/post-images/forums/200903/07p-6606-loading-circle-.gif'/>").insertAfter(this);
       }
-      $("#resultado").html("Loading...");	
-      var src = $("#src-user").val();
-      var dst = $("#dst-user").val();  
+      $("#resultado").html("Loading...");
+	  var src= "";
+	  var dst= "";
+	  if($("#src-user").val() != "0")	
+      	{src = $("#src-user").val();}
+	  else
+	    {src = $("#src-text").val();}
+  	  if($("#dst-user").val() != "0")
+	    {dst = $("#dst-user").val();}
+	  else
+	    {dst = $("#dst-text").val();}	  
       $.ajax({url:"/transfer",data:{destination:dst,source:src},success:function(result){
         $("#resultado").html(result);
         loading.remove();
       }});
     });
+	
+	
+    $("#edit").click(function(){
+      if ($("#loading2").length == 0) {	
+        var loading = $("<img id='loading2' style='padding-left:30px;' 						      							src='http://www.wallpaperama.com/post-images/forums/200903/07p-6606-loading-circle-.gif'/>").insertAfter(this);
+      }
+      $("#edit-result").html("Loading...");
+	  var user;
+	  var groups =[];
+	  
+	  if($("#edit-user").val() != "0")	
+      	{user = $("#edit-user").val();}
+	  else
+	    {user = $("#edit-text").val();}
+	 
+	  var checkboxes = $("input[name=chk_group[]]:checked");
+	  
+      $.each(checkboxes, function(i, checkbox) {
+		  groups.push(checkbox.value)
+    });
+  	   
+     $.ajax({url:"/edit",data:{user:user,groups:groups},success:function(result){
+        $("#edit-result").html(result);
+        loading.remove();
+      }});
+	  
+    });
+	
 
   });
   </script>
@@ -141,7 +278,6 @@
     <div class="row">
       <div class="span12">
         <h3>Which groups this user belongs to?</h3>
-		<h3 id="teste">Teste</h3>
       </div>
     </div>
     <div class="row">
@@ -191,20 +327,26 @@
     <div class="row">
       <div class="span3">
         <select name="src-user" id="src-user">
+		  <option selected value="0">Select a Source User</option>	
   		  <% @list.each do |user|%>	
             <option value=<%=user.username%>><%=user.username%></option>
           <% end %>
         </select>
+		<input id="src-text" type="text"></input>
       </div>
       <div class="span3">
         <select name="dst-user" id="dst-user">
+  		  <option selected value="0">Select a Destination User</option>		
   		  <% @list.each do |user|%>	
             <option value=<%=user.username%>><%=user.username%></option>
           <% end %>
         </select>
+		<input id="dst-text" type="text"></input>
       </div>
       <div class="span6">
         <button class="btn btn-info" type="submit" id="copy">&nbsp;Copy!&nbsp;</button>
+		
+		<p id="resultado" style='padding-top:13px;' class="text-info">Resultado</p>
       </div>
     </div>
     <div class="row">
@@ -221,16 +363,63 @@
 			</select>
 		</div>
 	</div>
-    <!-- STATUS -->
+   
+	
+    <!-- THIRD GROUP -->
     <div class="row">
-      <div class="span6">
+      <div class="span12">
+        <h3>Edit groups for a user</h3>
       </div>
-	  <div class="span6">
-          <p id="resultado" class="text-info">Resultado</p>
-	  </div>
     </div>
-
+    <div class="row">
+      <div class="span3">
+        <h4>Pick source user</h4>
+      </div>
+      <div class="span3">
+        <h4>Pick destination groups</h4>
+      </div>
+      <div class="span6">
+        <h4 id="result2-text"></h4>
+      </div>
+    </div>
+	
+	<!-- SELECTION BOXES -->
+	
+    <div class="row">
+      <div class="span3">
+        <select name="edit-user" id="edit-user">
+		  <option selected value="0">Select a User to edit his/her groups</option>	
+  		  <% @list.each do |user|%>	
+           <option value=<%=user.username %>><%=user.username%></option>
+          <% end %>
+        </select>
+		<input id="edit-text" type="text"></input>
+      </div>
+      <div style="height:150px !important;overflow:scroll;" class="span3" id="groups-scroll">
+		 <ul class="inputs-list">		  
+		 <% @grupos.each do |group| %>
+		 <li>
+		 <input type="checkbox" name="chk_group[]" value=<%=group %> />  <%=group %>  <br />
+	 	 </li>
+		 <% end %> 
+	 </ul>
+      </div>
+      <div class="span6">
+        <button class="btn btn-info" type="submit" id="edit">&nbsp;Edit!&nbsp;</button>	
+		<p id="edit-result" style='padding-top:13px;' class="text-info">Resultado</p>	
+      </div>
+    </div>
   </div>
+</br></br>
+  <div class="navbar-static-bottom">
+        <div class="navbar-inner">
+          <div class="container">
+            <p class="brand">21212's users groups</a>
+            <div class="nav-collapse collapse">
+            </div>
+          </div>
+        </div>
+      </div>
   
 </body>
 
