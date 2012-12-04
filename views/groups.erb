@@ -9,6 +9,11 @@
 
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.1/css/bootstrap.min.css" type="text/css" media="all" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.1/css/bootstrap-responsive.min.css" type="text/css" media="all" />
+  <style type="text/css" media="all">
+    body {
+      padding-bottom: 60px;
+    }
+  </style>
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript" charset="utf-8"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.1/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
@@ -363,7 +368,8 @@
 			</select>
 		</div>
 	</div>
-   
+
+    <hr />
 	
     <!-- THIRD GROUP -->
     <div class="row">
@@ -373,10 +379,10 @@
     </div>
     <div class="row">
       <div class="span3">
-        <h4>Pick source user</h4>
+        <h4>Pick user</h4>
       </div>
       <div class="span3">
-        <h4>Pick destination groups</h4>
+        <h4>Choose groups</h4>
       </div>
       <div class="span6">
         <h4 id="result2-text"></h4>
@@ -388,39 +394,37 @@
     <div class="row">
       <div class="span3">
         <select name="edit-user" id="edit-user">
-		  <option selected value="0">Select a User to edit his/her groups</option>	
-  		  <% @list.each do |user|%>	
-           <option value=<%=user.username %>><%=user.username%></option>
-          <% end %>
+          <option selected value="0">Select a User to edit his/her groups</option>	
+          <% @list.each do |user|%>	
+            <option value=<%=user.username %>><%=user.username%></option>
+        <% end %>
         </select>
-		<input id="edit-text" type="text"></input>
+        <input id="edit-text" type="text"></input>
       </div>
       <div style="height:150px !important;overflow:scroll;" class="span3" id="groups-scroll">
-		 <ul class="inputs-list">		  
-		 <% @grupos.each do |group| %>
-		 <li>
-		 <input type="checkbox" name="chk_group[]" value=<%=group %> />  <%=group %>  <br />
-	 	 </li>
-		 <% end %> 
-	 </ul>
+        <ul class="inputs-list" style="list-style-type: none;">
+          <% @grupos.each do |group| %>
+          <li>
+            <input type="checkbox" name="chk_group[]" value=<%=group %> />  <%=group %>
+          </li>
+        <% end %> 
+        </ul>
       </div>
       <div class="span6">
         <button class="btn btn-info" type="submit" id="edit">&nbsp;Edit!&nbsp;</button>	
-		<p id="edit-result" style='padding-top:13px;' class="text-info">Resultado</p>	
+        <p id="edit-result" style='padding-top:13px;' class="text-info">Resultado</p>	
       </div>
     </div>
   </div>
-</br></br>
-  <div class="navbar-static-bottom">
-        <div class="navbar-inner">
-          <div class="container">
-            <p class="brand">21212's users groups</a>
-            <div class="nav-collapse collapse">
-            </div>
-          </div>
-        </div>
+
+  <div class="navbar navbar-fixed-bottom">
+    <div class="navbar-inner">
+      <div class="container">
+        <p class="brand">21212's users groups</p>
       </div>
-  
+    </div>
+  </div>
+
 </body>
 
 </html>

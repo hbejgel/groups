@@ -17,102 +17,92 @@ end
 def login(user,password)
   user = "leonardo.constantino@21212.com" #apagar essa e a debaixo
   password = "qheddcyxvthzsrlp"
-  app = ProvisioningApi.new(user.to_s,password.to_s)
-  return app
+
+  ProvisioningApi.new(user.to_s,password.to_s)
 end
 
-#given a user, returns its groups
+#given a user, return their groups
 def retrieve_groups(myapps,user)
   begin
-    mylists = myapps.retrieve_groups(user)
-    return_value = []
-    mylists.each {|list| return_value << list.group_id }
+    myapps.retrieve_groups(user).map { |list| list.group_id }
   rescue GDataError => e
-    return ["Error: " + e.reason]
+    ["Error: #{e.reason}"]
   end
-      
-  return return_value 
-end  
+end
 
 def complement_groups(myapps,model,included)
   begin
-    mylists = myapps.retrieve_groups(model)
-    mylists.each {|list| myapps.add_member_to_group(included, list.group_id)  } 
+    myapps.retrieve_groups(model).each do |list|
+      myapps.add_member_to_group(included, list.group_id)
+    end
   rescue GDataError => e
-    return "Error: " + e.reason  
+    "Error: {e.reason}"
   end
-  return "Success"  
+  "Success"
 end
 
 def edit_groups(myapps,user,groups)
   begin
-    old_groups = retrieve_groups(myapps,user)
-    old_groups.each do |group|
+    retrieve_groups(myapps,user).each do |group|
       myapps.remove_member_from_group(user, group)
     end
-    if groups.nil?
-      return "#{user} removed from all groups. "
-    end
-  
+    return "#{user} removed from all groups. " if groups.nil?
     groups.each do |group|
       myapps.add_member_to_group(user, group)
     end
   rescue GDataError => e
-    return "Error: " + e.reason  
+    "Error: " + e.reason
   end
-  return "Success"    
+  "Success"
 end
 
 get '/login' do
   erb :login
 end
 
+get '/logout' do
+  session.clear
+
+  erb :login
+end
+
 post '/login' do
   session[:user]= params[:user]
   session[:password]= params[:password]
+
   redirect '/groups'
-end  
+end
 
 get '/groups' do
-  if session[:user].nil? || session[:password].nil?
-    redirect '/login'
-  end   
+  redirect '/login' and return if session[:user].nil? || session[:password].nil?
   myapps = login(session[:user],session[:password])
   @list = myapps.retrieve_all_users
-  @grupos = []
-  myapps.retrieve_all_groups.each do |group|
-    @grupos.push(group.group_id)
-  end  
+  @grupos = myapps.retrieve_all_groups.map { |group| group.group_id }
+
   erb :groups
 end
 
-
 get '/search' do
-
-  myapps = login(session[:user],session[:password])  
+  myapps = login(session[:user],session[:password])
   user = params[:q].to_s
 
-  resp=retrieve_groups(myapps,user)  
   content_type :json
-  return resp.to_json
-
+  return retrieve_groups(myapps,user).to_json
 end
 
 get '/transfer' do
-  myapps = login(session[:user],session[:password])  
+  myapps = login(session[:user], session[:password])
   dst = params[:destination].to_s
   src = params[:source].to_s
-  
-  return complement_groups(myapps,src,dst)
-  
+
+  complement_groups(myapps, src, dst)
 end
 
 get '/edit' do
-  myapps = login(session[:user],session[:password])  
+  myapps = login(session[:user], session[:password])
   user = params[:user].to_s
   groups = params[:groups]
-  
-  
-  return edit_groups(myapps,user,groups)
-  
+
+  edit_groups(myapps, user, groups)
 end
+
