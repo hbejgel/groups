@@ -15,9 +15,6 @@ def get_password(prompt="Enter Password")
 end
 
 def login(user,password)
-  user = "leonardo.constantino@21212.com" #apagar essa e a debaixo
-  password = "qheddcyxvthzsrlp"
-
   ProvisioningApi.new(user.to_s,password.to_s)
 end
 
